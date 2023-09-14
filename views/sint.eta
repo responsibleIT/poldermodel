@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css">
+    <script src="https://unpkg.com/htmx.org@1.8.6"></script>
+    <title><%= it.title %></title>
+</head>
+<body>
+<main class="container">
+    <nav aria-label="breadcrumb">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/sint">Sint</a></li>
+        </ul>
+    </nav>
+
+    <form hx-post="/sint" hx-target="#output" hx-indicator="#spinner">
+        <label>
+            Ontvanger
+            <input required type="text" id="recipient" name="recipient" placeholder="Ontvanger"/>
+        </label>
+
+        <label>
+            Cadeau
+            <input required type="text" id="gift" name="gift" placeholder="Cadeau"/>
+        </label>
+
+        <label>
+            Hobby
+            <input required type="text" id="hobby" name="hobby" placeholder="Hobby"/>
+        </label>
+
+        <label>
+            Kenmerken
+            <input required type="text" id="keywords" name="keywords" placeholder="Kenmerken"/>
+        </label>
+
+        <button type="submit">Genereer Gedicht</button>
+    </form>
+
+    <a id="spinner" class="htmx-indicator" aria-busy="true">Bezig met genereren, dit kan een minuut of langer
+        duren..</a>
+
+    <pre id="output"></pre>
+</main>
+</body>
+</html>

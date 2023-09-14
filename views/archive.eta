@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="/public/archive.css"/>
+    <script src="https://unpkg.com/htmx.org@1.8.6"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <title><%= it.title %></title>
+</head>
+<body>
+<div class="consensus-container" style="margin-left: 4em; margin-right: 4em; padding: 8px">
+    <h1>Consensus Machine</h1>
+    <%~ it.allConsensus.map((consensus) => {
+    return `
+    <div class="consensus" style="padding: 8px">
+        <h2 class="consensus__header">
+            ${new Date(consensus.timestamp).toLocaleString("nl", { weekday: "long" })} ${new
+            Date(consensus.timestamp).toLocaleTimeString("nl-NL")}
+        </h2>
+        <p class="consensus__body" style="overflow:hidden;
+  max-height: 8rem;
+  -webkit-box-orient: vertical;
+  display: block;
+  display: -webkit-box;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 4;">
+            ${consensus.text}
+        </p>
+    </div>
+    `
+    }).join('')%>
+</div>
+</body>
+</html>

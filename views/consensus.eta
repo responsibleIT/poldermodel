@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
+          integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="/public/style.css"/>
+    <script src="https://unpkg.com/htmx.org@1.8.6"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/disable-element.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <title><%= it.title %></title>
+</head>
+<body>
+<main id="app" class="container" x-data="{sentimentopen: false, argopen: false}">
+    <div id="choice-container" x-show="argopen || sentimentopen"
+         x-transition:enter="animate__animated animate__slideInDown">
+        <svg class="htmx-indicator spinner" aria-busy="true" width="48" height="48" viewBox="0 0 24 24"
+             xmlns="http://www.w3.org/2000/svg" fill="#93BAE8">
+            <path d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z">
+                <animateTransform attributeName="transform" type="rotate" dur="0.75s" values="0 12 12;360 12 12"
+                                  repeatCount="indefinite"/>
+            </path>
+        </svg>
+        <div x-show="sentimentopen" id="opinion-container">
+            <form>
+                <fieldset id="opinion" style="height: 100%">
+                </fieldset>
+                <input type="hidden" name="statement" value="<%= it.statement %>">
+            </form>
+        </div>
+
+        <div x-show="argopen" id="argument-container">
+            <form>
+                <fieldset id="arguments" style="height: 100%">
+                </fieldset>
+                <input type="hidden" name="statement" value="<%= it.statement %>">
+            </form>
+        </div>
+    </div>
+
+    <form id="main-form" class="animate__animated animate__fadeIn" hx-indicator=".spinner">
+        <fieldset id="text">
+            <% let statement = it.statement.match(/[^.!?[\]]+[.!?[\]]+/g).map((sentence, index) => {
+
+            if(sentence.includes("ARG=")) {
+            sentence = sentence.replace("ARG=", "");
+            return `<input id="arg${sentence+index}" class="arg" name="arg" type="checkbox"
+                           value="${sentence+index}" hx-post="/altarg" hx-target="#arguments" hx-swap="innerHTML"
+                           hx-ext="disable-element" hx-disable-element="#text">
+            <label class="arg-label"
+                   x-on:click="argopen = ! argopen"
+                   for="arg${sentence+index}">${sentence}</label>`
+            }
+
+            return `<input id="${sentence+index}" class="rep" name="rep" type="checkbox"
+                           value="${sentence+index}" hx-post="/initarg" hx-target="#opinion" hx-swap="innerHTML"
+                           hx-ext="disable-element" hx-disable-element="#text"> <label
+                class="rep-label"
+                x-on:click="sentimentopen = ! sentimentopen"
+                for="${sentence+index}">${sentence}</label>`
+            }); %>
+            <% statement.forEach((sentence) => { %>
+            <%~ sentence %>
+            <% }); %>
+        </fieldset>
+        <input type="hidden" name="statement" value="<%= it.statement %>">
+    </form>
+
+    <footer>
+        <div style="display: flex; gap: 24px">
+            <a href="/">
+                <svg xmlns="http://www.w3.org/2000/svg" width="6vh" height="100%" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 4L20 20M20 4L4 20" stroke="#000000" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round"/>
+                </svg>
+            </a>
+<!--            <a href=/consensus?statement=<%=it.statement_num%>>-->
+<!--                <svg xmlns="http://www.w3.org/2000/svg" width="6vh" height="100%" viewBox="0 0 24 24" fill="none">-->
+<!--                    <path d="M4.06189 13C4.02104 12.6724 4 12.3387 4 12C4 7.58172 7.58172 4 12 4C14.5006 4 16.7332 5.14727 18.2002 6.94416M19.9381 11C19.979 11.3276 20 11.6613 20 12C20 16.4183 16.4183 20 12 20C9.61061 20 7.46589 18.9525 6 17.2916M9 17H6V17.2916M18.2002 4V6.94416M18.2002 6.94416V6.99993L15.2002 7M6 20V17.2916"-->
+<!--                          stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                </svg>-->
+<!--            </a>-->
+        </div>
+        <div style="display: flex; flex-direction: row; justify-content: center; align-items: center">
+            <div style="border-right: solid 1px; padding-right: 32px;">
+                Lectoraat <br/>
+                Responsible IT
+            </div>
+            <img style="height: 5vh; object-fit: fill" src="/public/hva.png"/>
+        </div>
+    </footer>
+</main>
+</body>
+</html>
+
