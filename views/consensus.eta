@@ -50,7 +50,7 @@
 
             if(sentence.includes("ARG=")) {
             sentence = sentence.replace("ARG=", "");
-            return `<input id="arg${sentence+index}" class="arg" name="arg" type="checkbox"
+            return `<input id="arg${sentence+index}" class="arg" name="arg" type="radio"
                            value="${sentence+index}" hx-post="/altarg" hx-target="#arguments" hx-swap="innerHTML"
                            hx-ext="disable-element" hx-disable-element="#text">
             <label class="arg-label"
@@ -58,7 +58,7 @@
                    for="arg${sentence+index}">${sentence}</label>`
             }
 
-            return `<input id="${sentence+index}" class="rep" name="rep" type="checkbox"
+            return `<input id="${sentence+index}" class="rep" name="rep" type="radio"
                            value="${sentence+index}" hx-post="/initarg" hx-target="#opinion" hx-swap="innerHTML"
                            hx-ext="disable-element" hx-disable-element="#text"> <label
                 class="rep-label"
@@ -74,7 +74,7 @@
 
     <footer>
         <div style="display: flex; gap: 24px">
-            <a href="/">
+            <a href="/" draggable="false">
                 <svg xmlns="http://www.w3.org/2000/svg" width="6vh" height="100%" viewBox="0 0 24 24" fill="none">
                     <path d="M4 4L20 20M20 4L4 20" stroke="#000000" stroke-width="2" stroke-linecap="round"
                           stroke-linejoin="round"/>

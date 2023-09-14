@@ -156,11 +156,11 @@ fieldset {
     font-size: 1rem;
 }
 
-input[type="checkbox"] {
+input[type="radio"] {
     display: none;
 }
 
-input[type="checkbox"]:checked + label {
+input[type="radio"]:checked + label {
     background: #93BAE8;
     padding: 4px;
 }

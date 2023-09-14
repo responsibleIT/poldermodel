@@ -51,7 +51,7 @@ const start = async () => {
 
     await fastify
         .register(auth)
-        .register(bearerAuthPlugin, {addHook: false, keys, verifyErrorLogLevel: 'debug'});
+        .register(bearerAuthPlugin, {addHook: false, keys, verifyErrorLogLevel: 'fatal'});
 
     fastify.get('/', async (request, reply) => {
         reply.view('/views/consensus-index.eta', {
@@ -276,7 +276,7 @@ ${agree_but.replacement.trim()}
                 "role": "user",
                 "content": `This is the statement: ${statement}.
                 Replace the argument in this statement starting at sentence position ${start_index} and ending at sentence position ${end_index} within with this new argument: ${new_argument}.
-                Keep the statement the same, except for this sentence change.
+                Keep the statement the same length as the original statement. Differs max of 50 words. It has to be as close to the original statement as possible.
                 Don't use any quotes like " or ' in your response.
                 The new argument needs to be grammatically correct and fit logically on the place of the old argument! 
                 Prefix the argument with ARG=, like ARG=opinion.`
@@ -285,6 +285,7 @@ ${agree_but.replacement.trim()}
             let completion = await openai.createChatCompletion({
                 model: "gpt-4",
                 messages: msgs,
+                stream: true
             });
 
             let data = (completion.data.choices[0].message.content).replace(/\s+/g, ' ').trim();
@@ -323,8 +324,10 @@ ${agree_but.replacement.trim()}
                     Don't use any quotes like " or ' in your response.
                     The replacement needs to be grammatically correct and fit logically within the whole statement! First, Rewrite the whole original statement to have the same opinion
                     about the context as what can be read in the replacement. For example, if the replacement is negative about the context in the statement, rewrite the whole statement
-                    to be negative about the context as well, but keep it close to the original text. Don't add newlines when you rewrite the text. Follow up the replacement with an argument
-                    for why the opinion within the replacement is valid. Keep these arguments short. Prefix the argument with ARG=, like ARG=opinion. Add at least one new argument to the statement. 
+                    to be negative about the context as well, but keep it close to the original text. 
+                    Keep the statement the same length as the original statement. Differs max of 50 words. It has to be as close to the original statement as possible.
+                    Don't add newlines when you rewrite the text. Follow up the replacement with an argument
+                    for why the opinion within the replacement is valid. Keep these arguments short. Prefix the argument with ARG=, like ARG=opinion. Add at one new argument to the statement. 
                     Don't merge arguments while rewriting the statement initially. Keep them separate.
                     Don't change the length of the statement. Keep it the same length as the original statement. Differs max of 50 words.`
             });
@@ -332,6 +335,7 @@ ${agree_but.replacement.trim()}
             let completion = await openai.createChatCompletion({
                 model: "gpt-4",
                 messages: msgs,
+                stream: true
             });
 
             let data = (completion.data.choices[0].message.content).replace(/\s+/g, ' ').trim();
