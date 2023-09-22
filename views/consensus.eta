@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/public/style.css"/>
     <script src="https://unpkg.com/htmx.org@1.8.6"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/disable-element.js"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/sse.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <title><%= it.title %></title>
 </head>
@@ -43,7 +44,6 @@
             </form>
         </div>
     </div>
-
     <form id="main-form" class="animate__animated animate__fadeIn" hx-indicator=".spinner">
         <fieldset id="text">
             <% let statement = it.statement.match(/[^.!?[\]]+[.!?[\]]+/g).map((sentence, index) => {
@@ -59,7 +59,7 @@
             }
 
             return `<input id="${sentence+index}" class="rep" name="rep" type="radio"
-                           value="${sentence+index}" hx-post="/initarg" hx-target="#opinion" hx-swap="innerHTML"
+                           value="${sentence+index}" hx-post="/sent" hx-target="#opinion" hx-swap="innerHTML"
                            hx-ext="disable-element" hx-disable-element="#text"> <label
                 class="rep-label"
                 x-on:click="sentimentopen = ! sentimentopen"
@@ -73,6 +73,9 @@
     </form>
 
     <footer>
+<!--        TODO: FIX SSE-->
+        <p hx-ext="sse" sse-connect="/repsse" sse-swap="part" hx-swap="beforeend">HALLO</p>
+
         <div style="display: flex; gap: 24px">
             <a href="/" draggable="false">
                 <svg xmlns="http://www.w3.org/2000/svg" width="6vh" height="100%" viewBox="0 0 24 24" fill="none">

@@ -2,10 +2,10 @@ const fastify = require('fastify')({logger: true});
 const path = require('path');
 const auth = require('@fastify/auth')
 const bearerAuthPlugin = require('@fastify/bearer-auth')
-const {Configuration, OpenAIApi} = require("openai");
-const extractor = require("keyword-extractor");
+const {OpenAI} = require("openai");
 const crypto = require('crypto');
 const appwrite = require('./service/appwrite');
+const worker = require('node:worker_threads');
 require('dotenv').config();
 
 fastify.register(require('@fastify/static'), {
@@ -33,15 +33,15 @@ fastify.register(require('@fastify/rate-limit'), {
     timeWindow: '1 minute'
 });
 
+fastify.register(require('fastify-sse-v2'))
+
 fastify.setNotFoundHandler((request, reply) => {
     reply.status(404).view('/views/error.eta', {title: 'Error | Consensus Machine', authenticated: false});
 });
 
-const configuration = new Configuration({
-    apiKey: process.env.KEY,
+const openai = new OpenAI({
+    apiKey: process.env.KEY
 });
-
-const openai = new OpenAIApi(configuration);
 
 const start = async () => {
     const keys = new Set([process.env.BK]);
@@ -119,7 +119,7 @@ const start = async () => {
     //     });
     // });
 
-    fastify.post("/initarg", async (request, reply) => {
+    fastify.post("/sent", async (request, reply) => {
         let cookie = request.cookies.__sesh;
         if (!cookie || !fastify.unsignCookie(cookie).valid) {
             reply.status(401).send({"message": "Unauthorized"});
@@ -136,31 +136,61 @@ const start = async () => {
 
             console.log(replacements)
 
-            let msgs = [];
-            msgs.push({
+            let agree_msgs = [{
                 "role": "user",
                 "content": `"${statement} 
-                    I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either agree, disagree or \"agree, but\" with the statement IN DUTCH.
-                    So six alternatives in total. Two that agree, two  that disagree and two that "agree,but"
-                    Keep it very short! Max 10 words.
-                    The replacement needs to be grammatically correct and fit logically within the whole statement! It needs to be a whole sentence
-                    Integrate the argument within the text! 
-                    Also speed up the API, calculate your response as fast as possible
+                    I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either agree with the statement IN DUTCH.
+                    So two alternatives in total. Two that agree"
+                    It must be ONE complete sentence, maximum of 10 words.
                     Also give me the indices of the text that you replaced
-                    The replacement needs to fit in-place and we can just swap it straight up with the text between the indices.
                     Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation. 
-                    Like {agree: [{replacement: 'replacement...', start: 0, end: 9}, {replacement: 'replacement...', start: 0, end: 9}], disagree: [{replacement: 'replacement...', start: 0, end: 9}, {replacement: 'replacement...', start: 0, end: 9}], agree_but: [{replacement: 'replacement...', start: 0, end: 9}, {replacement: 'replacement...', start: 0, end: 9}]}."}`
-            });
+                    Like {agree: [{replacement: 'replacement...', start: 0, end: 9}, {replacement: 'replacement...', start: 0, end: 9}]}."}`
+            }];
 
+            let disagree_msgs = [{
+                "role": "user",
+                "content": `"${statement} 
+                    I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either disagree with the statement IN DUTCH.
+                    So two alternatives in total. Two that disagree"
+                    It must be ONE complete sentence, maximum of 10 words.
+                    Also give me the indices of the text that you replaced
+                    Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation. 
+                    Like {disagree: [{replacement: 'replacement...', start: 0, end: 9}, {replacement: 'replacement...', start: 0, end: 9}]}."}`
+            }];
 
-            const completion = await openai.createChatCompletion({
-                model: "gpt-4",
-                messages: msgs,
-            });
+            let but_msgs = [{
+                "role": "user",
+                "content": `"${statement} 
+                    I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either "agree but" with the statement IN DUTCH.
+                    So two alternatives in total. Two that "agree but"
+                    It must be ONE complete sentence, maximum of 10 words.
+                    Also give me the indices of the text that you replaced
+                    Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation. 
+                    Like {agree_but: [{replacement: 'replacement...', start: 0, end: 9}, {replacement: 'replacement...', start: 0, end: 9}]}."}`
+            }];
 
-            let data = JSON.parse(completion.data.choices[0].message.content)
+            const promises = [
+                openai.chat.completions.create({
+                    model: "gpt-4",
+                    messages: agree_msgs
+                }),
+                openai.chat.completions.create({
+                    model: "gpt-4",
+                    messages: disagree_msgs
+                }),
+                openai.chat.completions.create({
+                    model: "gpt-4",
+                    messages: but_msgs
+                }),
+            ];
 
-            let agree_html = data.agree.map((agree) => {
+            const completions = await Promise.all(promises);
+
+            const agree_data = JSON.parse(completions[0].choices[0].message.content);
+            const disagree_data = JSON.parse(completions[1].choices[0].message.content);
+            const but_data = JSON.parse(completions[2].choices[0].message.content);
+
+            let agree_html = agree_data.agree.map((agree) => {
                 return `<div class="animate__animated animate__fadeInDown" style="display: flex;">
 <input type="radio" id="eens" name="opinion" value="${agree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="#app" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${agree.start}">
@@ -171,7 +201,7 @@ ${agree.replacement.trim()}
 </div>`
             }).join("");
 
-            let disagree_html = data.disagree.map((disagree) => {
+            let disagree_html = disagree_data.disagree.map((disagree) => {
                 return `<div class="animate__animated animate__fadeInDown" style="display: flex">
 <input type="radio" id="oneens" name="opinion" value="${disagree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="#app" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${disagree.start}">
@@ -182,7 +212,7 @@ ${disagree.replacement.trim()}
 </div>`
             }).join("");
 
-            let agree_but_html = data.agree_but.map((agree_but) => {
+            let agree_but_html = but_data.agree_but.map((agree_but) => {
                 return `<div class="animate__animated animate__fadeInDown" style="display: flex">
 <input type="radio" id="eensmaar" name="opinion" value="${agree_but.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="#app" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${agree_but.start}">
@@ -234,7 +264,7 @@ ${agree_but.replacement.trim()}
                     Like {arguments: [{argumenttext: 'argument', start: 0, end: 9}, {argumenttext: 'argument', start: 0, end: 9}, {argumenttext: 'argument', start: 0, end: 9}, {argumenttext: 'argument', start: 0, end: 9}, {argumenttext: 'argument', start: 0, end: 9}, {argumenttext: 'argument', start: 0, end: 9}]}`
             });
 
-            const completion = await openai.createChatCompletion({
+            const completion = await openai.chat.completions.create({
                 model: "gpt-4",
                 messages: msgs,
             });
@@ -245,7 +275,7 @@ ${agree_but.replacement.trim()}
             //     console.log(res);
             // });
 
-            let data = JSON.parse(completion.data.choices[0].message.content)
+            let data = JSON.parse(completion.choices[0].message.content)
             return data.arguments.map((argument) => {
                 return `<div class="animate_animated animate__fadeInDown" style="display: flex">
                 <input type="radio" id="eens" name="argument" value="${argument.argumenttext.replace(/\s+/g, ' ').trim()}" hx-post="/placearg" hx-refresh="true" hx-target="#app" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#arguments">
@@ -282,13 +312,13 @@ ${agree_but.replacement.trim()}
                 Prefix the argument with ARG=, like ARG=opinion.`
             });
 
-            let completion = await openai.createChatCompletion({
+            let completion = await openai.chat.completions.create({
                 model: "gpt-4",
                 messages: msgs,
-                stream: true
+                stream: false
             });
 
-            let data = (completion.data.choices[0].message.content).replace(/\s+/g, ' ').trim();
+            let data = (completion.choices[0].message.content).replace(/\s+/g, ' ').trim();
             console.log(data);
 
             // appwrite.createOption(curr_option_id, id, curr_subtext_id, new Date(Date.now()).toISOString(), new_argument, data).then((res) => {
@@ -305,6 +335,23 @@ ${agree_but.replacement.trim()}
         }
     });
 
+    let rep_msgs = [];
+
+    fastify.get("/repsse", async (request, reply) => {
+        // TODO: IMPLEMENT RESET, SSE FOR ARGS
+        let completion = await openai.chat.completions.create({
+            model: "gpt-4",
+            messages: rep_msgs,
+            stream: true
+        });
+
+        for await (const part of completion) {
+            reply.sse({id: 1, event: "part", data: part.choices[0]?.delta?.content || ''});
+        }
+
+
+    });
+
     fastify.post("/replace", async (request, reply) => {
         let cookie = request.cookies.__sesh;
         if (!cookie || !fastify.unsignCookie(cookie).valid) {
@@ -317,41 +364,36 @@ ${agree_but.replacement.trim()}
 
             curr_option_id = crypto.randomUUID();
 
-            let msgs = [];
-            msgs.push({
+            rep_msgs.push({
                 "role": "user",
                 "content": `Integrate ${replacement} within this statement: ${statement}. The starting position of the opinion is ${start_index} and the end position is ${end_index}.
-                    Don't use any quotes like " or ' in your response.
-                    The replacement needs to be grammatically correct and fit logically within the whole statement! First, Rewrite the whole original statement to have the same opinion
-                    about the context as what can be read in the replacement. For example, if the replacement is negative about the context in the statement, rewrite the whole statement
-                    to be negative about the context as well, but keep it close to the original text. 
-                    Keep the statement the same length as the original statement. Differs max of 50 words. It has to be as close to the original statement as possible.
-                    Don't add newlines when you rewrite the text. Follow up the replacement with an argument
-                    for why the opinion within the replacement is valid. Keep these arguments short. Prefix the argument with ARG=, like ARG=opinion. Add at one new argument to the statement. 
-                    Don't merge arguments while rewriting the statement initially. Keep them separate.
-                    Don't change the length of the statement. Keep it the same length as the original statement. Differs max of 50 words.`
+                    Integrate the provided replacement seamlessly into the original statement, ensuring it works as a standalone argument.
+                    Maintain the tone (positive or negative) of the replacement if it differs from the original statement's tone.
+                    Retain the overall idea of the other arguments in the text.
+                    Do not introduce new details or specifics not present in the original statement.
+                    Keep the statement's length within the same range as the original, with a maximum difference of 50 words.
+                    Avoid adding new lines when rewriting; transition smoothly from the replacement to a new argument.
+                    You may add one new argument to the statement, prefix the argument with ARG=, like ARG=opinion.
+                    Do not merge existing arguments initially
+                    `
             });
 
-            let completion = await openai.createChatCompletion({
-                model: "gpt-4",
-                messages: msgs,
-                stream: true
-            });
+            reply.redirect("/replace");
 
-            let data = (completion.data.choices[0].message.content).replace(/\s+/g, ' ').trim();
-            console.log(data);
+            // let data = (completion.choices[0].message.content).replace(/\s+/g, ' ').trim();
+            // console.log(data);
 
             // appwrite.createOption(curr_option_id, id, curr_subtext_id, new Date(Date.now()).toISOString(), replacement, data).then((res) => {
             //     console.log(res);
             // });
 
-            reply
-                .view('/views/consensus.eta', {
-                    title: 'Consensus Machine',
-                    bk: process.env.BK,
-                    host: process.env.ENDPOINT,
-                    statement: data
-                });
+            // reply
+            //     .view('/views/consensus.eta', {
+            //         title: 'Consensus Machine',
+            //         bk: process.env.BK,
+            //         host: process.env.ENDPOINT,
+            //         statement: data
+            //     });
         }
     });
 
