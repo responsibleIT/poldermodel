@@ -364,7 +364,8 @@ ${agree_but.replacement.trim()}
 
             curr_option_id = crypto.randomUUID();
 
-            rep_msgs.push({
+            let msgs = [];
+            msgs.push({
                 "role": "user",
                 "content": `Integrate ${replacement} within this statement: ${statement}. The starting position of the opinion is ${start_index} and the end position is ${end_index}.
                     Integrate the provided replacement seamlessly into the original statement, ensuring it works as a standalone argument.
@@ -380,14 +381,12 @@ ${agree_but.replacement.trim()}
 
             let completion = await openai.chat.completions.create({
                 model: "gpt-4",
-                messages: rep_msgs,
+                messages: msgs,
                 stream: false
             });
 
-            // reply.redirect("/replace");
-
             let data = (completion.choices[0].message.content).replace(/\s+/g, ' ').trim();
-            // console.log(data);
+            console.log(data);
 
             // appwrite.createOption(curr_option_id, id, curr_subtext_id, new Date(Date.now()).toISOString(), replacement, data).then((res) => {
             //     console.log(res);
