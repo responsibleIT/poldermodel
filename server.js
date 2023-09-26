@@ -378,22 +378,28 @@ ${agree_but.replacement.trim()}
                     `
             });
 
-            reply.redirect("/replace");
+            let completion = await openai.chat.completions.create({
+                model: "gpt-4",
+                messages: rep_msgs,
+                stream: false
+            });
 
-            // let data = (completion.choices[0].message.content).replace(/\s+/g, ' ').trim();
+            // reply.redirect("/replace");
+
+            let data = (completion.choices[0].message.content).replace(/\s+/g, ' ').trim();
             // console.log(data);
 
             // appwrite.createOption(curr_option_id, id, curr_subtext_id, new Date(Date.now()).toISOString(), replacement, data).then((res) => {
             //     console.log(res);
             // });
 
-            // reply
-            //     .view('/views/consensus.eta', {
-            //         title: 'Consensus Machine',
-            //         bk: process.env.BK,
-            //         host: process.env.ENDPOINT,
-            //         statement: data
-            //     });
+            reply
+                .view('/views/consensus.eta', {
+                    title: 'Consensus Machine',
+                    bk: process.env.BK,
+                    host: process.env.ENDPOINT,
+                    statement: data
+                });
         }
     });
 
