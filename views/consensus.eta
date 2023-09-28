@@ -65,7 +65,7 @@
         </div>
         <hr/>
     </div>
-    <form id="main-form" class="animate__animated animate__fadeIn" hx-indicator=".spinner">
+    <form id="main-form" hx-indicator=".spinner">
         <fieldset id="text">
             <% let statement = it.statement.match(/[^.!?[\]]+[.!?[\]]+/g).map((sentence, index) => {
 
