@@ -15,14 +15,15 @@
     <script src="https://unpkg.com/htmx.org/dist/ext/disable-element.js"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/sse.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <title><%= it.title %></title>
 </head>
 <body>
 <main id="app" class="container" x-data="{sentimentopen: false, argopen: false}">
     <div id="choice-container" x-show="argopen || sentimentopen"
-         x-transition:enter="animate__animated animate__slideInDown">
+         x-transition:enter="animate__animated animate__zoomIn">
         <svg class="htmx-indicator spinner" aria-busy="true" width="48" height="48" viewBox="0 0 24 24"
-             xmlns="http://www.w3.org/2000/svg" fill="#93BAE8">
+             xmlns="http://www.w3.org/2000/svg" fill="#000000">
             <path d="M12,23a9.63,9.63,0,0,1-8-9.5,9.51,9.51,0,0,1,6.79-9.1A1.66,1.66,0,0,0,12,2.81h0a1.67,1.67,0,0,0-1.94-1.64A11,11,0,0,0,12,23Z">
                 <animateTransform attributeName="transform" type="rotate" dur="0.75s" values="0 12 12;360 12 12"
                                   repeatCount="indefinite"/>
@@ -43,6 +44,7 @@
                 <input type="hidden" name="statement" value="<%= it.statement %>">
             </form>
         </div>
+        <hr/>
     </div>
     <form id="main-form" class="animate__animated animate__fadeIn" hx-indicator=".spinner">
         <fieldset id="text">
@@ -71,34 +73,36 @@
         </fieldset>
         <input type="hidden" name="statement" value="<%= it.statement %>">
     </form>
+    <p class="animate__animated animate__fadeInRight" id="word-loader" style="display: none;"></p>
 
     <footer>
-<!--        TODO: FIX SSE-->
-<!--        <p hx-ext="sse" sse-connect="/repsse" sse-swap="part" hx-swap="beforeend">HALLO</p>-->
-
         <div style="display: flex; gap: 24px">
-            <a href="/" draggable="false">
-                <svg xmlns="http://www.w3.org/2000/svg" width="6vh" height="100%" viewBox="0 0 24 24" fill="none">
-                    <path d="M4 4L20 20M20 4L4 20" stroke="#000000" stroke-width="2" stroke-linecap="round"
-                          stroke-linejoin="round"/>
+            <a href="/" draggable="false" style="padding: 32px; padding-left: 0px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="6vh" height="100%" viewBox="0 0 512 512">
+                    <path d="M320 146s24.36-12-64-12a160 160 0 1 0 160 160" fill="none" stroke="#000000"
+                          stroke-linecap="round" stroke-miterlimit="10" stroke-width="16"/>
+                    <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="16" d="m256 58 80 80-80 80"/>
                 </svg>
+
             </a>
-<!--            <a href=/consensus?statement=<%=it.statement_num%>>-->
-<!--                <svg xmlns="http://www.w3.org/2000/svg" width="6vh" height="100%" viewBox="0 0 24 24" fill="none">-->
-<!--                    <path d="M4.06189 13C4.02104 12.6724 4 12.3387 4 12C4 7.58172 7.58172 4 12 4C14.5006 4 16.7332 5.14727 18.2002 6.94416M19.9381 11C19.979 11.3276 20 11.6613 20 12C20 16.4183 16.4183 20 12 20C9.61061 20 7.46589 18.9525 6 17.2916M9 17H6V17.2916M18.2002 4V6.94416M18.2002 6.94416V6.99993L15.2002 7M6 20V17.2916"-->
-<!--                          stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>-->
-<!--                </svg>-->
-<!--            </a>-->
         </div>
         <div style="display: flex; flex-direction: row; justify-content: center; align-items: center">
-            <div style="border-right: solid 1px; padding-right: 32px;">
-                Lectoraat <br/>
-                Responsible IT
-            </div>
-            <img style="height: 5vh; object-fit: fill" src="/public/hva.png"/>
+            <img style="height: 7vh; object-fit: fill" src="/public/logo.png"/>
         </div>
     </footer>
 </main>
+<script>
+    try {
+        let socket = io();
+        socket.on('part', function (part) {
+            document.getElementById("main-form").style.display = "none";
+            document.getElementById("word-loader").style.display = "block";
+            document.getElementById("word-loader").innerHTML = part;
+        });
+    } catch (e) {
+    }
+</script>
 </body>
 </html>
 

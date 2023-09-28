@@ -33,7 +33,7 @@ fastify.register(require('@fastify/rate-limit'), {
     timeWindow: '1 minute'
 });
 
-fastify.register(require('fastify-sse-v2'))
+fastify.register(require("fastify-socket.io"));
 
 fastify.setNotFoundHandler((request, reply) => {
     reply.status(404).view('/views/error.eta', {title: 'Error | Consensus Machine', authenticated: false});
@@ -142,6 +142,7 @@ const start = async () => {
                     I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either agree with the statement IN DUTCH.
                     So two alternatives in total. Two that agree"
                     It must be ONE complete sentence, maximum of 10 words.
+                    Max 10 words.
                     Also give me the indices of the text that you replaced
                     Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation. 
                     Like {agree: [{replacement: 'replacement...', start: 0, end: 9}, {replacement: 'replacement...', start: 0, end: 9}]}."}`
@@ -153,6 +154,7 @@ const start = async () => {
                     I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either disagree with the statement IN DUTCH.
                     So two alternatives in total. Two that disagree"
                     It must be ONE complete sentence, maximum of 10 words.
+                    Max 10 words.
                     Also give me the indices of the text that you replaced
                     Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation. 
                     Like {disagree: [{replacement: 'replacement...', start: 0, end: 9}, {replacement: 'replacement...', start: 0, end: 9}]}."}`
@@ -164,6 +166,7 @@ const start = async () => {
                     I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either "agree but" with the statement IN DUTCH.
                     So two alternatives in total. Two that "agree but"
                     It must be ONE complete sentence, maximum of 10 words.
+                    Max 10 words.
                     Also give me the indices of the text that you replaced
                     Do not include any explanations, only provide a RFC8259 compliant JSON response following this format without deviation. 
                     Like {agree_but: [{replacement: 'replacement...', start: 0, end: 9}, {replacement: 'replacement...', start: 0, end: 9}]}."}`
@@ -191,7 +194,7 @@ const start = async () => {
             const but_data = JSON.parse(completions[2].choices[0].message.content);
 
             let agree_html = agree_data.agree.map((agree) => {
-                return `<div class="animate__animated animate__fadeInDown" style="display: flex;">
+                return `<div class="animate__animated animate__zoomIn" style="display: flex;">
 <input type="radio" id="eens" name="opinion" value="${agree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="#app" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${agree.start}">
 <input hidden name="end" value="${agree.end}">
@@ -202,7 +205,7 @@ ${agree.replacement.trim()}
             }).join("");
 
             let disagree_html = disagree_data.disagree.map((disagree) => {
-                return `<div class="animate__animated animate__fadeInDown" style="display: flex">
+                return `<div class="animate__animated animate__zoomIn" style="display: flex">
 <input type="radio" id="oneens" name="opinion" value="${disagree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="#app" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${disagree.start}">
 <input hidden name="end" value="${disagree.end}">
@@ -213,7 +216,7 @@ ${disagree.replacement.trim()}
             }).join("");
 
             let agree_but_html = but_data.agree_but.map((agree_but) => {
-                return `<div class="animate__animated animate__fadeInDown" style="display: flex">
+                return `<div class="animate__animated animate__zoomIn" style="display: flex">
 <input type="radio" id="eensmaar" name="opinion" value="${agree_but.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="#app" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${agree_but.start}">
 <input hidden name="end" value="${agree_but.end}">
@@ -301,8 +304,7 @@ ${agree_but.replacement.trim()}
 
             curr_option_id = crypto.randomUUID();
 
-            let msgs = [];
-            msgs.push({
+            let msg = {
                 "role": "user",
                 "content": `This is the statement: ${statement}.
                 Replace the argument in this statement starting at sentence position ${start_index} and ending at sentence position ${end_index} within with this new argument: ${new_argument}.
@@ -310,16 +312,9 @@ ${agree_but.replacement.trim()}
                 Don't use any quotes like " or ' in your response.
                 The new argument needs to be grammatically correct and fit logically on the place of the old argument! 
                 Prefix the argument with ARG=, like ARG=opinion.`
-            });
+            }
 
-            let completion = await openai.chat.completions.create({
-                model: "gpt-4",
-                messages: msgs,
-                stream: false
-            });
-
-            let data = (completion.choices[0].message.content).replace(/\s+/g, ' ').trim();
-            console.log(data);
+            let data = await stream(msg);
 
             // appwrite.createOption(curr_option_id, id, curr_subtext_id, new Date(Date.now()).toISOString(), new_argument, data).then((res) => {
             //     console.log(res);
@@ -335,22 +330,23 @@ ${agree_but.replacement.trim()}
         }
     });
 
-    let rep_msgs = [];
-
-    fastify.get("/repsse", async (request, reply) => {
-        // TODO: IMPLEMENT RESET, SSE FOR ARGS
+    async function stream(msg) {
         let completion = await openai.chat.completions.create({
             model: "gpt-4",
-            messages: rep_msgs,
+            messages: [msg],
             stream: true
         });
-
+        let whole = ""
+        let current_word = ""
         for await (const part of completion) {
-            reply.sse({id: 1, event: "part", data: part.choices[0]?.delta?.content || ''});
+            let output = (part.choices[0]?.delta?.content || '')
+            console.log(output)
+            whole += output
+            fastify.io.emit('part', whole);
         }
 
-
-    });
+        return whole
+    }
 
     fastify.post("/replace", async (request, reply) => {
         let cookie = request.cookies.__sesh;
@@ -364,8 +360,7 @@ ${agree_but.replacement.trim()}
 
             curr_option_id = crypto.randomUUID();
 
-            let msgs = [];
-            msgs.push({
+            let msg = {
                 "role": "user",
                 "content": `Integrate ${replacement} within this statement: ${statement}. The starting position of the opinion is ${start_index} and the end position is ${end_index}.
                     Integrate the provided replacement seamlessly into the original statement, ensuring it works as a standalone argument.
@@ -377,16 +372,9 @@ ${agree_but.replacement.trim()}
                     You may add one new argument to the statement, prefix the argument with ARG=, like ARG=opinion.
                     Do not merge existing arguments initially
                     `
-            });
+            }
 
-            let completion = await openai.chat.completions.create({
-                model: "gpt-4",
-                messages: msgs,
-                stream: false
-            });
-
-            let data = (completion.choices[0].message.content).replace(/\s+/g, ' ').trim();
-            console.log(data);
+            let data = await stream(msg);
 
             // appwrite.createOption(curr_option_id, id, curr_subtext_id, new Date(Date.now()).toISOString(), replacement, data).then((res) => {
             //     console.log(res);
