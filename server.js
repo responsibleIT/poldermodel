@@ -337,12 +337,18 @@ ${agree_but.replacement.trim()}
             stream: true
         });
         let whole = ""
-        let current_word = ""
+        let show_whole = ""
         for await (const part of completion) {
             let output = (part.choices[0]?.delta?.content || '')
-            console.log(output)
             whole += output
-            fastify.io.emit('part', whole);
+            if (output.includes("ARG=")) {
+                show_whole += output.replace("ARG=", "")
+            } else if (output.includes("ARG =")) {
+                show_whole += output.replace("ARG =", "")
+            } else {
+                show_whole += output
+            }
+            fastify.io.emit('part', show_whole);
         }
 
         return whole

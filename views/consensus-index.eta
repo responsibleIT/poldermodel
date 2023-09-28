@@ -44,11 +44,7 @@
             </svg>
         </a>
         <div style="display: flex; flex-direction: row; justify-content: center; align-items: center">
-            <div style="border-right: solid 1px; padding-right: 32px;">
-                Lectoraat <br/>
-                Responsible IT
-            </div>
-            <img style="height: 5vh; object-fit: fill" src="/public/hva.png"/>
+            <img style="height: 7vh; object-fit: fill" src="/public/logo.png"/>
         </div>
     </footer>
 </main>

@@ -124,7 +124,7 @@ fieldset {
 }
 
 .argument:active {
-    filter: contrast(2);
+    filter: contrast(1.5);
 }
 
 .first-argument-row {
@@ -169,7 +169,6 @@ input[type="radio"] {
 
 input[type="radio"]:checked + label {
     background: #FFFF33;
-    padding: 4px;
 }
 
 .htmx-indicator {
@@ -182,6 +181,7 @@ input[type="radio"]:checked + label {
     overflow: scroll;
     padding-left: 10vw;
     padding-right: 10vw;
+    padding-top: 32px;
 }
 
 #main-form::-webkit-scrollbar {
@@ -208,4 +208,5 @@ footer {
     user-select: none;
     padding-left: 10vw;
     padding-right: 10vw;
+    padding-top: 32px;
 }
