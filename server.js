@@ -115,6 +115,8 @@ const start = async () => {
     //     });
     // });
 
+    const sleep = (waitTimeInMs) => new Promise(resolve => setTimeout(resolve, waitTimeInMs));
+
     fastify.post("/sent", async (request, reply) => {
         let cookie = request.cookies.__sesh;
         if (!cookie || !fastify.unsignCookie(cookie).valid) {
@@ -305,7 +307,7 @@ ${agree_but.replacement.trim()}
 
             let data = JSON.parse(completion.choices[0].message.content)
             return data.arguments.map((argument, index) => {
-                return `<div id="arg${index}" class="animate_animated animate__fadeInDown" style="display: flex">
+                return `<div id="arg${index}" class="animate__animated animate__zoomIn" style="display: flex">
                 <input type="radio" id="eens" name="argument" value="${argument.argumenttext.replace(/\s+/g, ' ').trim()}" hx-post="/placearg" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#arguments">
                 <input hidden name="start" value="${argument.start}">
                 <input hidden name="end" value="${argument.end}">
@@ -405,6 +407,10 @@ ${agree_but.replacement.trim()}
             show_whole = show_whole.replaceAll(/ARG=/g, "")
             fastify.io.emit('part', show_whole);
         }
+
+        fastify.io.emit('part', "DONE");
+
+        await sleep(1000)
 
         return whole
     }

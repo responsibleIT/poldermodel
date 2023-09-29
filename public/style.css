@@ -13,7 +13,7 @@
 }
 
 * {
-    /*cursor: none;*/
+    cursor: none;
 }
 
 html, body {
@@ -22,7 +22,6 @@ html, body {
     height: 100vh;
     overflow: hidden;
     margin: 0;
-    /*cursor: none;*/
 }
 
 #statement-selector {
@@ -121,7 +120,7 @@ fieldset {
     border-radius: 10px;
     line-height: 150%;
     width: 25vw;
-    border: solid 1px #5795c1
+    border: solid 1px #5795c1;
 }
 
 .first-argument-row {
@@ -204,11 +203,20 @@ footer {
     font-size: var(--big-font);
     line-height: 200%;
     user-select: none;
-    padding-left: 10.7vw;
+    padding-left: 10.1vw;
     padding-right: 10vw;
-    padding-top: 38px;
+    padding-top: 32px;
     height: 55vh;
     overflow: hidden;
     background: rgba(255, 122, 89, .0);
     pointer-events: none;
+}
+
+a {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+fieldset {
+    padding: 0;
 }
