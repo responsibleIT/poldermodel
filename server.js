@@ -66,23 +66,19 @@ const start = async () => {
         let statement_num = request.query.statement;
 
         let statements = [
-            `Het gebruik van AI bij de gemeente roept serieuze zorgen op over privacy en de mogelijke uitsluiting van kwetsbare groepen in de samenleving. 
-        Hierdoor is het niet aan te raden om AI te gebruiken om de efficiëntie en transparantie van openbare diensten te verbeteren.`,
+            `
+            AI-toepassingen worden grootschalig omarmd en ingezet; zonder dat men er weet van heeft wat AI eigenlijk wel of niet kan. 
+            Regulering, zoals de AI act en de andere EU regelgeving, is een onderdeel van de aanpak, maar zal AI niet per se verantwoordelijk of waarachtig maken. 
+            Een programma om AI te demystificeren en mensen digitaal weerbaar te maken is dus keihard nodig en urgent.
+            `,
 
-            `AI vergroot de digitale kloof tussen bevolkingsgroepen. 
-        Degenen met toegang tot geavanceerde technologieën en digitale vaardigheden kunnen aanzienlijke voordelen behalen. Anderen worden buitengesloten en achtergelaten.
-        Hierom is het gebruik van AI bij de gemeente niet aan te raden.`,
+            `
+            Ethiek in AI betekent het zeker stellen dat onze interactie met AI-systemen niet schadelijk is. Ook is het van belang dat AI bijdraagt aan vrede, menselijke waardigheid, duurzaamheid en veiligheid.
+            `,
 
             `Het gebruik van AI bij de gemeente zal de efficiëntie van openbare diensten verbeteren. 
         Maar de vraag blijft in hoeverre het de menselijke besluitvorming en betrokkenheid van de gemeenschap kan vervangen.
-        Daarom moeten we voorzichtig zijn om AI te gebruiken om de efficiëntie en transparantie van openbare diensten te verbeteren.`,
-
-            `Wij hebben met belangstelling kennisgenomen van de uitspraak van het college.
-        Bij bijzondere omstandigheden zijn wij van mening dat het inzetten van proctoringsoftware bij high stake toetsing alsnog te rechtvaardigen is.
-        Gedurende de coronaperiode hebben wij gebruik gemaakt van proctoringsoftware.
-        Deze software hebben wij zorgvuldig in lijn met ons beleid op integrale veiligheid ingericht.
-        Ons zijn geen problemen of klachten bekend zoals in deze zaak voorlagen.
-        In de toekomst zullen wij in vooraf bepaalde specifieke gevallen gebruik blijven maken van proctoringsoftware waarbij wij altijd zeer zorgvuldig zullen handelen.`]
+        Daarom moeten we voorzichtig zijn om AI te gebruiken om de efficiëntie en transparantie van openbare diensten te verbeteren.`,]
 
         let statement = statements[statement_num];
 
@@ -193,9 +189,9 @@ const start = async () => {
             const disagree_data = JSON.parse(completions[1].choices[0].message.content);
             const but_data = JSON.parse(completions[2].choices[0].message.content);
 
-            let agree_html = agree_data.agree.map((agree) => {
-                return `<div class="animate__animated animate__zoomIn" style="display: flex;">
-<input type="radio" id="eens" name="opinion" value="${agree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="#app" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
+            let agree_html = agree_data.agree.map((agree, index) => {
+                return `<div id="agree${index}" class="animate__animated animate__zoomIn" style="display: flex;">
+<input type="radio" id="eens" name="opinion" value="${agree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${agree.start}">
 <input hidden name="end" value="${agree.end}">
 <label for="eens" class="argument first-argument-row">
@@ -204,9 +200,9 @@ ${agree.replacement.trim()}
 </div>`
             }).join("");
 
-            let disagree_html = disagree_data.disagree.map((disagree) => {
-                return `<div class="animate__animated animate__zoomIn" style="display: flex">
-<input type="radio" id="oneens" name="opinion" value="${disagree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="#app" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
+            let disagree_html = disagree_data.disagree.map((disagree, index) => {
+                return `<div id="disagree${index}"class="animate__animated animate__zoomIn" style="display: flex">
+<input type="radio" id="oneens" name="opinion" value="${disagree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${disagree.start}">
 <input hidden name="end" value="${disagree.end}">
 <label for="oneens" class="argument third-argument-row">
@@ -215,9 +211,9 @@ ${disagree.replacement.trim()}
 </div>`
             }).join("");
 
-            let agree_but_html = but_data.agree_but.map((agree_but) => {
-                return `<div class="animate__animated animate__zoomIn" style="display: flex">
-<input type="radio" id="eensmaar" name="opinion" value="${agree_but.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="#app" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
+            let agree_but_html = but_data.agree_but.map((agree_but, index) => {
+                return `<div id="but${index}" class="animate__animated animate__zoomIn" style="display: flex">
+<input type="radio" id="eensmaar" name="opinion" value="${agree_but.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${agree_but.start}">
 <input hidden name="end" value="${agree_but.end}">
 <label for="eensmaar" class="argument second-argument-row">
@@ -232,7 +228,36 @@ ${agree_but.replacement.trim()}
             //     console.log(res);
             // });
 
-            return agree_html + agree_but_html + disagree_html;
+            return agree_html +
+                agree_but_html +
+                disagree_html +
+                `
+                <script>
+                    document.getElementById("agree0").onclick = () => {
+                        document.getElementById("agree0").style.filter = "saturate(2)"
+                    }
+                    
+                    document.getElementById("agree1").onclick = () => {
+                        document.getElementById("agree1").style.filter = "saturate(2)"
+                    }
+                    
+                    document.getElementById("disagree0").onclick = () => {
+                        document.getElementById("disagree0").style.filter = "saturate(2)"
+                    }
+                    
+                    document.getElementById("disagree1").onclick = () => {
+                        document.getElementById("disagree1").style.filter = "saturate(2)"
+                    }
+                    
+                    document.getElementById("but0").onclick = () => {
+                        document.getElementById("but0").style.filter = "saturate(2)"
+                    }
+                    
+                    document.getElementById("but1").onclick = () => {
+                        document.getElementById("but1").style.filter = "saturate(2)"
+                    }
+                </script>
+                `;
         }
     });
 
@@ -279,16 +304,42 @@ ${agree_but.replacement.trim()}
             // });
 
             let data = JSON.parse(completion.choices[0].message.content)
-            return data.arguments.map((argument) => {
-                return `<div class="animate_animated animate__fadeInDown" style="display: flex">
-                <input type="radio" id="eens" name="argument" value="${argument.argumenttext.replace(/\s+/g, ' ').trim()}" hx-post="/placearg" hx-refresh="true" hx-target="#app" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#arguments">
+            return data.arguments.map((argument, index) => {
+                return `<div id="arg${index}" class="animate_animated animate__fadeInDown" style="display: flex">
+                <input type="radio" id="eens" name="argument" value="${argument.argumenttext.replace(/\s+/g, ' ').trim()}" hx-post="/placearg" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#arguments">
                 <input hidden name="start" value="${argument.start}">
                 <input hidden name="end" value="${argument.end}">
                 <label for="eens" class="argument second-argument-row animate_animated animate__fadeInDown">
                 ${argument.argumenttext.replace(/\s+/g, ' ').trim()}
                 </label>
                 </div>`
-            }).join("");
+            }).join("") +
+                `
+                <script>
+                    document.getElementById("arg0").onclick = () => {
+                        document.getElementById("arg0").style.filter = "saturate(2)"
+                    }
+                    
+                    document.getElementById("arg1").onclick = () => {
+                        document.getElementById("arg1").style.filter = "saturate(2)"
+                    }
+                    
+                    document.getElementById("arg2").onclick = () => {
+                        document.getElementById("arg2").style.filter = "saturate(2)"
+                    }
+                    
+                    document.getElementById("arg3").onclick = () => {
+                        document.getElementById("arg3").style.filter = "saturate(2)"
+                    }
+                    
+                    document.getElementById("arg4").onclick = () => {
+                        document.getElementById("arg4").style.filter = "saturate(2)"
+                    }
+                    
+                    document.getElementById("arg5").onclick = () => {
+                        document.getElementById("arg5").style.filter = "saturate(2)"
+                    }
+                `;
         }
     });
 
@@ -340,14 +391,18 @@ ${agree_but.replacement.trim()}
         let show_whole = ""
         for await (const part of completion) {
             let output = (part.choices[0]?.delta?.content || '')
+            if (output.includes(":")){
+                continue;
+            }
+
             whole += output
             if (output.includes("ARG=")) {
-                show_whole += output.replace("ARG=", "")
-            } else if (output.includes("ARG =")) {
-                show_whole += output.replace("ARG =", "")
-            } else {
+                show_whole += output.replaceAll(/ARG=/g, "")
+            }else {
                 show_whole += output
             }
+
+            show_whole = show_whole.replaceAll(/ARG=/g, "")
             fastify.io.emit('part', show_whole);
         }
 

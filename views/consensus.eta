@@ -20,7 +20,7 @@
 </head>
 <body>
 <main id="app" class="container" x-data="{sentimentopen: false, argopen: false}">
-    <div id="choice-container" x-show="argopen || sentimentopen"
+    <div id="choice-container" x-show="argopen || sentimentopen" style="display: none"
          x-transition:enter="animate__animated animate__zoomIn">
         <svg class="htmx-indicator spinner" aria-busy="true" width="48" height="48" viewBox="0 0 24 24"
              xmlns="http://www.w3.org/2000/svg">
@@ -65,7 +65,7 @@
         </div>
         <hr/>
     </div>
-    <form id="main-form" hx-indicator=".spinner">
+    <form id="main-form" hx-indicator=".spinner" class="animate__animated animate__fadeIn">
         <fieldset id="text">
             <% let statement = it.statement.match(/[^.!?[\]]+[.!?[\]]+/g).map((sentence, index) => {
 
@@ -95,7 +95,7 @@
     <p class="animate__animated animate__fadeInRight" id="word-loader" style="display: none;"></p>
 
     <footer>
-        <div style="display: flex; gap: 24px">
+        <div style="display: flex; gap: 24px" class="animate__animated animate__fadeIn">
             <a href="/" draggable="false" style="padding: 32px 32px 32px 16px;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="6vh" height="100%" viewBox="0 0 512 512">
                     <path d="M320 146s24.36-12-64-12a160 160 0 1 0 160 160" fill="none" stroke="#000000"

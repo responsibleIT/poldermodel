@@ -20,21 +20,16 @@
 <main id="app" class="container">
     <div id="statement-selector" class="animate__animated animate__slideInDown">
         <a href="/consensus?statement=0" class="argument second-argument-row"
-           style="color: black; text-decoration: none">Privacy- en uitsluitingszorgen maken het risicovol om AI te
-            gebruiken
-            voor verbetering van efficiëntie en transparantie in overheidsdiensten.</a>
+           style="color: black; text-decoration: none">Dringende behoefte aan AI-demystificatie en digitale
+            weerbaarheidsprogramma's.
+        </a>
         <a href="/consensus?statement=1" class="argument second-argument-row"
-           style="color: black; text-decoration: none">AI vergroot digitale
-            ongelijkheid door voordelen voor tech-vaardigen en
-            uitsluiting van anderen.</a>
+           style="color: black; text-decoration: none">Ethiek in AI betekent het zeker stellen dat onze interactie met
+            AI-systemen niet schadelijk is.</a>
         <a href="/consensus?statement=2" class="argument second-argument-row"
            style="color: black; text-decoration: none">AI verbetert gemeentelijke
             efficiëntie, maar vervangt niet volledig
             menselijke besluitvorming en gemeenschapsbetrokkenheid.</a>
-        <a href="/consensus?statement=3" class="argument second-argument-row"
-           style="color: black; text-decoration: none; opacity: 0.4;">Bij speciale omstandigheden
-            kan proctoringsoftware gerechtvaardigd zijn,
-            met zorgvuldige implementatie en geen bekende problemen, maar selectief gebruik in de toekomst.</a>
     </div>
     <footer>
         <a style="opacity: 0">
