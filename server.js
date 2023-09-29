@@ -193,10 +193,10 @@ const start = async () => {
 
             let agree_html = agree_data.agree.map((agree, index) => {
                 return `<div id="agree${index}" class="animate__animated animate__zoomIn" style="display: flex;">
-<input type="radio" id="eens" name="opinion" value="${agree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
+<input type="radio" id="eens${index}" name="opinion" value="${agree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${agree.start}">
 <input hidden name="end" value="${agree.end}">
-<label for="eens" class="argument first-argument-row">
+<label for="eens${index}" class="argument first-argument-row">
 ${agree.replacement.trim()}
 </label>
 </div>`
@@ -204,10 +204,10 @@ ${agree.replacement.trim()}
 
             let disagree_html = disagree_data.disagree.map((disagree, index) => {
                 return `<div id="disagree${index}"class="animate__animated animate__zoomIn" style="display: flex">
-<input type="radio" id="oneens" name="opinion" value="${disagree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
+<input type="radio" id="oneens${index}" name="opinion" value="${disagree.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${disagree.start}">
 <input hidden name="end" value="${disagree.end}">
-<label for="oneens" class="argument third-argument-row">
+<label for="oneens${index}" class="argument third-argument-row">
 ${disagree.replacement.trim()}
 </label>
 </div>`
@@ -215,10 +215,10 @@ ${disagree.replacement.trim()}
 
             let agree_but_html = but_data.agree_but.map((agree_but, index) => {
                 return `<div id="but${index}" class="animate__animated animate__zoomIn" style="display: flex">
-<input type="radio" id="eensmaar" name="opinion" value="${agree_but.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
+<input type="radio" id="eensmaar${index}" name="opinion" value="${agree_but.replacement.trim()}" hx-post="/replace" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#opinion">
 <input hidden name="start" value="${agree_but.start}">
 <input hidden name="end" value="${agree_but.end}">
-<label for="eensmaar" class="argument second-argument-row">
+<label for="eensmaar${index}" class="argument second-argument-row">
 ${agree_but.replacement.trim()}
 </label>
 </div>`
@@ -308,10 +308,10 @@ ${agree_but.replacement.trim()}
             let data = JSON.parse(completion.choices[0].message.content)
             return data.arguments.map((argument, index) => {
                 return `<div id="arg${index}" class="animate__animated animate__zoomIn" style="display: flex">
-                <input type="radio" id="eens" name="argument" value="${argument.argumenttext.replace(/\s+/g, ' ').trim()}" hx-post="/placearg" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#arguments">
+                <input type="radio" id="ment${index}" name="argument" value="${argument.argumenttext.replace(/\s+/g, ' ').trim()}" hx-post="/placearg" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#arguments">
                 <input hidden name="start" value="${argument.start}">
                 <input hidden name="end" value="${argument.end}">
-                <label for="eens" class="argument second-argument-row animate_animated animate__fadeInDown">
+                <label for="ment${index}" class="argument second-argument-row animate_animated animate__fadeInDown">
                 ${argument.argumenttext.replace(/\s+/g, ' ').trim()}
                 </label>
                 </div>`
