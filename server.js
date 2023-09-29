@@ -307,7 +307,7 @@ ${agree_but.replacement.trim()}
 
             let data = JSON.parse(completion.choices[0].message.content)
             return data.arguments.map((argument, index) => {
-                return `<div id="arg${index}" class="animate__animated animate__zoomIn" style="display: flex">
+                    return `<div id="arg${index}" class="animate__animated animate__zoomIn" style="display: flex">
                 <input type="radio" id="ment${index}" name="argument" value="${argument.argumenttext.replace(/\s+/g, ' ').trim()}" hx-post="/placearg" hx-refresh="true" hx-target="body" hx-swap="innerHTML" hidden hx-indicator=".spinner" hx-ext="disable-element" hx-disable-element="#arguments">
                 <input hidden name="start" value="${argument.start}">
                 <input hidden name="end" value="${argument.end}">
@@ -315,7 +315,7 @@ ${agree_but.replacement.trim()}
                 ${argument.argumenttext.replace(/\s+/g, ' ').trim()}
                 </label>
                 </div>`
-            }).join("") +
+                }).join("") +
                 `
                 <script>
                     document.getElementById("arg0").onclick = () => {
@@ -393,14 +393,16 @@ ${agree_but.replacement.trim()}
         let show_whole = ""
         for await (const part of completion) {
             let output = (part.choices[0]?.delta?.content || '')
-            if (output.includes(":")){
+            if (output.includes(":")) {
                 continue;
             }
 
             whole += output
             if (output.includes("ARG=")) {
                 show_whole += output.replaceAll(/ARG=/g, "")
-            }else {
+            } else if (output.includes('"')) {
+                show_whole += output.replaceAll(/['"]+/g, "")
+            } else {
                 show_whole += output
             }
 
