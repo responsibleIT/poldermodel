@@ -76,9 +76,7 @@ const start = async () => {
             Ethiek in AI betekent het zeker stellen dat onze interactie met AI-systemen niet schadelijk is. Ook is het van belang dat AI bijdraagt aan vrede, menselijke waardigheid, duurzaamheid en veiligheid.
             `,
 
-            `Het gebruik van AI bij de gemeente zal de efficiëntie van openbare diensten verbeteren. 
-        Maar de vraag blijft in hoeverre het de menselijke besluitvorming en betrokkenheid van de gemeenschap kan vervangen.
-        Daarom moeten we voorzichtig zijn om AI te gebruiken om de efficiëntie en transparantie van openbare diensten te verbeteren.`,]
+            `Het is beter om studenten AI ready te laten afstuderen, dan om ze in leven lang leren programma's later alsnog bij te scholen. Iedereen die nu van MBO of HBO komt moet digitaal vaardig, waardig, wendbaar en weerbaar de arbeidsmarkt betreden.`,]
 
         let statement = statements[statement_num];
 
