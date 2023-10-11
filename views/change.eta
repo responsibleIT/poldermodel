@@ -18,16 +18,14 @@
 </head>
 <body>
 <main id="app" class="container">
-    <div id="statement-selector" class="animate__animated animate__slideInDown">
-        <% it.statements.forEach((statement, index) => { %>
-        <a href="/consensus?statement=<%~ index %>" class="argument second-argument-row"
-           style="color: black; text-decoration: none; font-size: 1.3rem;">
-            <p style="display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical; overflow: hidden"><%~ statement %> </p>
-        </a>
-        <% }) %>
-    </div>
+    <form id="statement-change-form" method="post">
+        <div id="statement-change-textareas">
+            <% it.statements.forEach((statement, index) => { %>
+            <textarea class="argument statement-change-textarea" name="statement<%~ index %>" required><%~ statement.trim() %></textarea>
+            <% }) %>
+        </div>
+        <input class="argument second-argument-row" type="submit">
+    </form>
     <footer>
         <a style="opacity: 0">
             <svg xmlns="http://www.w3.org/2000/svg" width="6vh" height="100%" viewBox="0 0 24 24" fill="none">
@@ -40,5 +38,17 @@
         </div>
     </footer>
 </main>
+<script>
+    let form = document.getElementById("statement-change-form");
+    let textareas = document.querySelectorAll(".statement-change-textarea");
+    form.onsubmit = (event) => {
+        textareas.forEach((textarea) => {
+            if (!/[.?!]/g.test(textarea.value)) {
+                event.preventDefault();
+                alert("Complete sentences only please!");
+            }
+        });
+    }
+</script>
 </body>
 </html>

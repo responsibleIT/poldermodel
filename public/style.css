@@ -220,3 +220,31 @@ a {
 fieldset {
     padding: 0;
 }
+
+#statement-change-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: auto 40px 40px;
+    padding: 32px;
+    gap: 64px;
+}
+
+#statement-change-textareas {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+#statement-change-textareas > textarea {
+    width: 30vw;
+    height: 40vh;
+    padding: 16px;
+    box-sizing: border-box;
+}

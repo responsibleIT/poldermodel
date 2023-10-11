@@ -48,6 +48,17 @@ const start = async () => {
     let id = "";
     let curr_subtext_id = "";
     let curr_option_id = "";
+    let statements = [
+        `
+            AI-toepassingen worden grootschalig omarmd en ingezet; zonder dat men er weet van heeft wat AI eigenlijk wel of niet kan. Regulering, zoals de AI act en de andere EU regelgeving, is een onderdeel van de aanpak, maar zal AI niet per se verantwoordelijk of waarachtig maken. Een programma om AI te demystificeren en mensen digitaal weerbaar te maken is dus keihard nodig en urgent.
+            `,
+
+        `
+            Ethiek in AI betekent het zeker stellen dat onze interactie met AI-systemen niet schadelijk is. Ook is het van belang dat AI bijdraagt aan vrede, menselijke waardigheid, duurzaamheid en veiligheid.
+            `,
+
+        `Het is beter om studenten AI ready te laten afstuderen, dan om ze in leven lang leren programma's later alsnog bij te scholen. Iedereen die nu van MBO of HBO komt moet digitaal vaardig, waardig, wendbaar en weerbaar de arbeidsmarkt betreden.`,]
+
 
     await fastify
         .register(auth)
@@ -55,8 +66,29 @@ const start = async () => {
 
     fastify.get('/', async (request, reply) => {
         reply.view('/views/consensus-index.eta', {
-            title: 'Consensus Machine'
+            title: 'Consensus Machine',
+            statements: statements,
         });
+    });
+
+    fastify.get('/change', async (request, reply) => {
+        reply.view('/views/change.eta', {
+            title: 'Consensus Machine',
+            statements: statements,
+        });
+    });
+
+    fastify.post('/change', async (request, reply) => {
+        let cookie = request.cookies.__sesh;
+        if (!cookie || !fastify.unsignCookie(cookie).valid) {
+            reply.status(401).send({"message": "Unauthorized"});
+        } else {
+            statements[0] = request.body["statement0"]
+            statements[1] = request.body["statement1"]
+            statements[2] = request.body["statement2"]
+
+            reply.redirect("/");
+        }
     });
 
     fastify.get('/consensus', async (request, reply) => {
@@ -64,20 +96,6 @@ const start = async () => {
         id = crypto.randomUUID();
 
         let statement_num = request.query.statement;
-
-        let statements = [
-            `
-            AI-toepassingen worden grootschalig omarmd en ingezet; zonder dat men er weet van heeft wat AI eigenlijk wel of niet kan. 
-            Regulering, zoals de AI act en de andere EU regelgeving, is een onderdeel van de aanpak, maar zal AI niet per se verantwoordelijk of waarachtig maken. 
-            Een programma om AI te demystificeren en mensen digitaal weerbaar te maken is dus keihard nodig en urgent.
-            `,
-
-            `
-            Ethiek in AI betekent het zeker stellen dat onze interactie met AI-systemen niet schadelijk is. Ook is het van belang dat AI bijdraagt aan vrede, menselijke waardigheid, duurzaamheid en veiligheid.
-            `,
-
-            `Het is beter om studenten AI ready te laten afstuderen, dan om ze in leven lang leren programma's later alsnog bij te scholen. Iedereen die nu van MBO of HBO komt moet digitaal vaardig, waardig, wendbaar en weerbaar de arbeidsmarkt betreden.`,]
-
         let statement = statements[statement_num];
 
         // appwrite.createConsensus(id, new Date(Date.now()).toISOString(), statement.replace(/\s+/g, ' ').trim()).then((consensus) => {
