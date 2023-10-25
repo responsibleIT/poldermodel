@@ -49,14 +49,9 @@ const start = async () => {
     let curr_subtext_id = "";
     let curr_option_id = "";
     let statements = [
-        `
-                    It is impossible to design a smart society without losing sight of the well-being of people and the planet. As this requires us to strike a balance between technological advancements and our ethical responsibilities toward both individuals and the environment.`,
-
-        `
-        Generative AI is just a hype, and will not revolutionize the foundations of the creative field. It needs to be seamlessly integrated with human ingenuity and creativity. Then it will ultimately transform the way we approach artistic and innovative endeavors.
-            `,
-
-        `Inclusion is about letting go of our presumed right to define, categorise and judge others. This fosters a more accepting and diverse world where each person is appreciated for their unique experiences and perspectives. This is a world where people are free from biases and stereotypes.`,]
+        `The creative industry must design a smart society without losing sight of the people and the planet. Creative professionals have a duty to guide innovations such as artificial intelligence towards the well-being of the people and the planet.`,
+        `Generative AI is just a hype that will not revolutionize the foundations of the creative field. Nor will it replace human ingenuity and creativity.`,
+        `The impossibly naïve use of the terms inclusion and inclusivity need urgent rethinking and redefining. Inclusion is about letting go of our presumed right to define, categorise and judge others.`]
 
 
     await fastify
