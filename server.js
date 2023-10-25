@@ -50,14 +50,13 @@ const start = async () => {
     let curr_option_id = "";
     let statements = [
         `
-            AI-toepassingen worden grootschalig omarmd en ingezet; zonder dat men er weet van heeft wat AI eigenlijk wel of niet kan. Regulering, zoals de AI act en de andere EU regelgeving, is een onderdeel van de aanpak, maar zal AI niet per se verantwoordelijk of waarachtig maken. Een programma om AI te demystificeren en mensen digitaal weerbaar te maken is dus keihard nodig en urgent.
-            `,
+                    It is impossible to design a smart society without losing sight of the well-being of people and the planet. As this requires us to strike a balance between technological advancements and our ethical responsibilities toward both individuals and the environment.`,
 
         `
-            Ethiek in AI betekent het zeker stellen dat onze interactie met AI-systemen niet schadelijk is. Ook is het van belang dat AI bijdraagt aan vrede, menselijke waardigheid, duurzaamheid en veiligheid.
+        Generative AI is just a hype, and will not revolutionize the foundations of the creative field. It needs to be seamlessly integrated with human ingenuity and creativity. Then it will ultimately transform the way we approach artistic and innovative endeavors.
             `,
 
-        `Het is beter om studenten AI ready te laten afstuderen, dan om ze in leven lang leren programma's later alsnog bij te scholen. Iedereen die nu van MBO of HBO komt moet digitaal vaardig, waardig, wendbaar en weerbaar de arbeidsmarkt betreden.`,]
+        `Inclusion is about letting go of our presumed right to define, categorise and judge others. This fosters a more accepting and diverse world where each person is appreciated for their unique experiences and perspectives. This is a world where people are free from biases and stereotypes.`,]
 
 
     await fastify
@@ -153,7 +152,7 @@ const start = async () => {
             let agree_msgs = [{
                 "role": "user",
                 "content": `"${statement} 
-                    I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either agree with the statement IN DUTCH.
+                    I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either agree with the statement in its respective language.
                     So two alternatives in total. Two that agree"
                     It must be ONE complete sentence, maximum of 10 words.
                     Max 10 words.
@@ -165,7 +164,7 @@ const start = async () => {
             let disagree_msgs = [{
                 "role": "user",
                 "content": `"${statement} 
-                    I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either disagree with the statement IN DUTCH.
+                    I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either disagree with the statement in its respective language.
                     So two alternatives in total. Two that disagree"
                     It must be ONE complete sentence, maximum of 10 words.
                     Max 10 words.
@@ -177,7 +176,7 @@ const start = async () => {
             let but_msgs = [{
                 "role": "user",
                 "content": `"${statement} 
-                    I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either "agree but" with the statement IN DUTCH.
+                    I want to replace ${replacements} of this original statement, give me two alternatives of this substring that either "agree but" with the statement in its respective language.
                     So two alternatives in total. Two that "agree but"
                     It must be ONE complete sentence, maximum of 10 words.
                     Max 10 words.
